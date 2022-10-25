@@ -1,3 +1,4 @@
+from turtle import right
 import cv2
 import mediapipe as mp
 mp_drawing = mp.solutions.drawing_utils
@@ -7,11 +8,13 @@ Right_Eyes = [362, 382, 381, 380, 374, 373, 390,
               249, 263, 466, 388, 387, 386, 385, 384, 398]
 Left_Eyes = [33, 7, 163, 144, 145, 153, 154,
              155, 133, 173, 157, 158, 159, 160, 161, 246]
+Mouth = [61, 185, 40, 39, 37, 0, 267, 269, 270, 409,
+         291, 375, 321, 405, 314, 17, 84, 181, 91, 146]
 
 
-def return_Eye(facePos, eyePos):
+def Get_ROI(facePos, pos):
     minx, miny, maxx, maxy = w, h, 0, 0
-    for e in eyePos:
+    for e in pos:
         lx = int(facePos[e].x * w)
         ly = int(facePos[e].y * h)
         if lx < minx:
@@ -51,12 +54,21 @@ with mp_face_mesh.FaceMesh(
             for face_landmarks in results.multi_face_landmarks:
                 face_pos = face_landmarks.landmark
 
-                rightEye = return_Eye(face_pos, Right_Eyes)
-                leftEye = return_Eye(face_pos, Left_Eyes)
+                rightEye = Get_ROI(face_pos, Right_Eyes)
+                leftEye = Get_ROI(face_pos, Left_Eyes)
+                mouth = Get_ROI(face_pos, Mouth)
 
-        cv2.imshow('MediaPipe FaceMesh', image)
-        cv2.imshow("right Eye", rightEye)
-        cv2.imshow("left Eye", leftEye)
+        # cv2.imshow('MediaPipe FaceMesh', image)
+        try:
+            cv2.imshow("right Eye", rightEye)
+            cv2.imshow("left Eye", leftEye)
+            cv2.imshow("mouth", mouth)
+        except Exception as e:
+            pass
+
+        cv2.moveWindow("right Eye", 500, 200)
+        cv2.moveWindow("left Eye", 300, 200)
+        cv2.moveWindow("mouth", 400, 400)
 
         if cv2.waitKey(5) & 0xFF == 27:
             break
